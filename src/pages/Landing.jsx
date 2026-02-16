@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import { Button } from "@/components/ui/button";
-import { useAuth } from '@/lib/AuthContext';
 import {
   Accordion,
   AccordionContent,
@@ -34,8 +33,6 @@ import {
 
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
-  const navigate = useNavigate();
 
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -47,7 +44,6 @@ export default function Landing() {
 
   return (
     <div className="dark min-h-screen bg-background text-foreground font-sans antialiased selection:bg-primary/20">
-
       {/* Top Navigation */}
       <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -78,33 +74,20 @@ export default function Landing() {
 
             {/* CTA Buttons */}
             <div className="hidden md:flex items-center gap-4">
-              {isAuthenticated ? (
-                <Link to="/Home">
-                  <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20">
-                    Dashboard
-                  </Button>
-                </Link>
-              ) : (
-                <>
-                  <Link to="/Login">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      Sign in
-                    </Button>
-                  </Link>
-                  <Link to="/Signup">
-                    <Button
-                      size="sm"
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
-                    >
-                      Start free trial
-                    </Button>
-                  </Link>
-                </>
-              )}
+              <Link to={createPageUrl('Home')}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Sign in
+                </Button>
+              </Link>
+              <Link to={createPageUrl('Subscribe')}>
+                <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20">
+                  Start free trial
+                </Button>
+              </Link>
             </div>
 
             {/* Mobile Menu Button */}
@@ -132,31 +115,19 @@ export default function Landing() {
                 FAQ
               </button>
               <div className="px-4 pt-4 space-y-3 border-t border-border mt-2">
-                {isAuthenticated ? (
-                  <Link to="/Home" className="block">
-                    <Button className="w-full justify-center bg-primary hover:bg-primary/90 text-primary-foreground">
-                      Dashboard
-                    </Button>
-                  </Link>
-                ) : (
-                  <>
-                    <Link to="/Login" className="block">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-center"
-                      >
-                        Sign in
-                      </Button>
-                    </Link>
-                    <Link to="/Signup" className="block">
-                      <Button
-                        className="w-full justify-center bg-primary hover:bg-primary/90 text-primary-foreground"
-                      >
-                        Start free trial
-                      </Button>
-                    </Link>
-                  </>
-                )}
+                <Link to={createPageUrl('Home')} className="block">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center"
+                  >
+                    Sign in
+                  </Button>
+                </Link>
+                <Link to={createPageUrl('Subscribe')} className="block">
+                  <Button className="w-full justify-center bg-primary hover:bg-primary/90 text-primary-foreground">
+                    Start free trial
+                  </Button>
+                </Link>
               </div>
             </div>
           )}
@@ -196,11 +167,8 @@ export default function Landing() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-12">
-                <Link to="/Signup">
-                  <Button
-                    size="lg"
-                    className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 w-full sm:w-auto"
-                  >
+                <Link to={createPageUrl('Subscribe')}>
+                  <Button size="lg" className="h-14 px-8 text-lg bg-primary hover:bg-primary/90 text-primary-foreground shadow-xl shadow-primary/20 w-full sm:w-auto">
                     Start 7-day free trial
                     <ChevronRight className="w-5 h-5 ml-2" />
                   </Button>
@@ -536,10 +504,8 @@ export default function Landing() {
                 ))}
               </div>
 
-              <Link to="/Signup">
-                <Button
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-14 text-base shadow-xl shadow-blue-600/20 rounded-xl relative z-10"
-                >
+              <Link to={createPageUrl('Subscribe')}>
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold h-14 text-base shadow-xl shadow-blue-600/20 rounded-xl relative z-10">
                   Start 7-day free trial
                 </Button>
               </Link>
