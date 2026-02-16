@@ -1,58 +1,96 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { api } from '@/api/apiClient';
+import { supabase } from './supabase';
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
-  const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
   const [authError, setAuthError] = useState(null);
-  const [appPublicSettings, setAppPublicSettings] = useState(null); // Contains only { id, public_settings }
 
   useEffect(() => {
-    checkAppState();
-  }, []);
-
-  const checkAppState = async () => {
-    setIsLoadingPublicSettings(true);
-    setAuthError(null);
-
-    // Mock public settings
-    setAppPublicSettings({
-      id: 'mock-app-id',
-      public_settings: {
-        auth_required: false
+    // Check active sessions and sets the user
+    const getSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        setAuthError(error);
       }
+      setUser(session?.user ?? null);
+      setIsAuthenticated(!!session);
+      setIsLoadingAuth(false);
+    };
+
+    getSession();
+
+    // Listen for changes on auth state (logged in, signed out, etc.)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setUser(session?.user ?? null);
+      setIsAuthenticated(!!session);
+      setIsLoadingAuth(false);
     });
 
-    await checkUserAuth();
-    setIsLoadingPublicSettings(false);
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const signUpWithEmail = async (email, password, fullName) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+        emailRedirectTo: `${window.location.origin}/Home`,
+      },
+    });
+    return { data, error };
   };
 
-  const checkUserAuth = async () => {
-    try {
-      setIsLoadingAuth(true);
-      const currentUser = await api.auth.me();
-      setUser(currentUser);
-      setIsAuthenticated(true);
-      setIsLoadingAuth(false);
-    } catch (error) {
-      console.error('User auth check failed:', error);
-      setIsLoadingAuth(false);
+  const signInWithEmail = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { data, error };
+  };
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/Home`,
+      },
+    });
+    return { data, error };
+  };
+
+  const signInWithApple = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: {
+        redirectTo: `${window.location.origin}/Home`,
+      },
+    });
+    return { data, error };
+  };
+
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (!error) {
+      setUser(null);
       setIsAuthenticated(false);
     }
+    return { error };
   };
 
-  const logout = (shouldRedirect = true) => {
-    setUser(null);
-    setIsAuthenticated(false);
-    api.auth.logout();
-  };
-
-  const navigateToLogin = () => {
-    api.auth.redirectToLogin();
+  const resetPassword = async (email) => {
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/Settings`,
+    });
+    return { data, error };
   };
 
   return (
@@ -60,12 +98,13 @@ export const AuthProvider = ({ children }) => {
       user,
       isAuthenticated,
       isLoadingAuth,
-      isLoadingPublicSettings,
       authError,
-      appPublicSettings,
+      signUpWithEmail,
+      signInWithEmail,
+      signInWithGoogle,
+      signInWithApple,
       logout,
-      navigateToLogin,
-      checkAppState
+      resetPassword
     }}>
       {children}
     </AuthContext.Provider>

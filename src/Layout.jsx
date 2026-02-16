@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from './utils';
 import { api } from '@/api/apiClient';
+import { useAuth } from '@/lib/AuthContext';
 import {
   LayoutDashboard,
   BookOpen,
@@ -86,13 +87,14 @@ const navSections = [
 ];
 
 export default function Layout({ children, currentPageName }) {
-  // Render Landing, Subscribe, and payment pages without layout wrapper
-  if (currentPageName === 'Landing' || currentPageName === 'Subscribe' || currentPageName === 'PaymentSuccess' || currentPageName === 'PaymentCancel') {
+  // Render Landing, Login, Signup, Subscribe, and payment pages without layout wrapper
+  if (currentPageName === 'Landing' || currentPageName === 'Login' || currentPageName === 'Signup' || currentPageName === 'Subscribe' || currentPageName === 'PaymentSuccess' || currentPageName === 'PaymentCancel') {
     return <>{children}</>;
   }
 
+  const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const [hasIncompleteEntry, setHasIncompleteEntry] = useState(false);
   const [selectedAccountId, setSelectedAccountId] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -100,19 +102,6 @@ export default function Layout({ children, currentPageName }) {
 
   // Summary mode flag
   const isSummaryMode = selectedAccountId === 'SUMMARY_ALL';
-
-  useEffect(() => {
-    const checkUser = async () => {
-      try {
-        const currentUser = await api.auth.me();
-        setUser(currentUser);
-      } catch (error) {
-        console.error("Layout: Error fetching user:", error);
-        api.auth.redirectToLogin();
-      }
-    };
-    checkUser();
-  }, []);
 
   useEffect(() => {
     const initAccount = async () => {
@@ -143,11 +132,13 @@ export default function Layout({ children, currentPageName }) {
       }
     };
 
-    initAccount();
-  }, [user]);
+    if (isAuthenticated) {
+      initAccount();
+    }
+  }, [user, isAuthenticated]);
 
   useEffect(() => {
-    if (!user?.email) return;
+    if (!user?.email || !isAuthenticated) return;
 
     api.entities.JournalEntry.filter({
       created_by: user.email,
@@ -155,10 +146,11 @@ export default function Layout({ children, currentPageName }) {
     }, '-entry_date', 1)
       .then(entries => setHasIncompleteEntry(entries.length > 0))
       .catch(() => { });
-  }, [user]);
+  }, [user, isAuthenticated]);
 
-  const handleLogout = () => {
-    api.auth.logout();
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
   };
 
   const handleAccountCreated = (newAccount) => {

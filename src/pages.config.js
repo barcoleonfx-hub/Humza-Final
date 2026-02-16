@@ -59,7 +59,7 @@ import Home from './pages/Home';
 import Journal from './pages/Journal';
 import Landing from './pages/Landing';
 import LearningCompanion from './pages/LearningCompanion';
-import LiveChartInsights from './pages/LiveChartInsights';
+import Login from './pages/Login';
 import MultiTimeframeScan from './pages/MultiTimeframeScan';
 import News from './pages/News';
 import PaymentCancel from './pages/PaymentCancel';
@@ -71,6 +71,7 @@ import SessionWorkspace from './pages/SessionWorkspace';
 import Settings from './pages/Settings';
 import SettingsSubscription from './pages/SettingsSubscription';
 import ShareMarketPulse from './pages/ShareMarketPulse';
+import Signup from './pages/Signup';
 import Subscribe from './pages/Subscribe';
 import TraderJNLIndicator from './pages/TraderJNLIndicator';
 import VIPTradeWithFounder from './pages/VIPTradeWithFounder';
@@ -91,6 +92,7 @@ export const PAGES = {
     "Landing": Landing,
     "LearningCompanion": LearningCompanion,
     "LiveChartInsights": LiveChartInsights,
+    "Login": Login,
     "MultiTimeframeScan": MultiTimeframeScan,
     "News": News,
     "PaymentCancel": PaymentCancel,
@@ -102,6 +104,7 @@ export const PAGES = {
     "Settings": Settings,
     "SettingsSubscription": SettingsSubscription,
     "ShareMarketPulse": ShareMarketPulse,
+    "Signup": Signup,
     "Subscribe": Subscribe,
     "TraderJNLIndicator": TraderJNLIndicator,
     "VIPTradeWithFounder": VIPTradeWithFounder,
